@@ -3,6 +3,8 @@ import requests
 import base64
 import json
 import requests
+import csv
+import os
 from bs4 import BeautifulSoup
 import re
 
@@ -102,8 +104,7 @@ def get_topTracks(artistId_lst):
     return(toptracks_lst)
 
 
-import csv
-import os
+
 
 def get_table(data, filename):
     """This function get_table takes in a list of tuples and a filename 
@@ -121,7 +122,8 @@ def get_table(data, filename):
 def get_avg_popularity(data):
     """The function get_avg_popularity takes in a list of tuples(from get_topTracks) 
     and calculates the average song popularity using the Artist's top ten tracks, 
-    then stores in a list of tuples avg_popularity with the Artist Name: Average Song Popularity in a key value pair"""
+    then stores in a list of tuples avg_popularity with the 
+    Artist Name: Average Song Popularity in a key value pair"""
     popularity_tot_dic = {}
     for i in data: 
         if i[1] in popularity_tot_dic:
@@ -139,6 +141,13 @@ def get_avg_popularity(data):
     #^uses the total popularity dictionary and calculates average per artist and add tuple into list
     
     return avg_popularity
+
+def get_table2(avg_popularity, filename):
+    with open(filename, 'w') as out:
+        csv_out = csv.writer(out)
+        csv_out.writerow([ 'Artist Name', 'Average Popularity'])
+        for row in avg_popularity:
+            csv_out.writerow(row)
 
 def get_songURLpath(data):
     """The function get_songURLpath takes in a list of tuples (from get_topTracks)
@@ -176,6 +185,13 @@ def get_songURLpath(data):
                 #^give us the information once it matches then break out of the conditional
 
     return song_data
+
+def get_table3(song_data, filename):
+    with open(filename, 'w') as out:
+        csv_out = csv.writer(out)
+        csv_out.writerow(['Artist ID', 'Song Title','Artist Name', 'Song URL path'])
+        for row in song_data:
+            csv_out.writerow(row)
 
 def get_profanity(genius_data):
     """ The function get_profanity takes in a list of tuples (from get_songURLpath)
@@ -229,6 +245,13 @@ def get_profanity(genius_data):
 
     return profanity_data
 
+def get_table4(profanity_data, filename):
+    with open(filename, 'w') as out:
+        csv_out = csv.writer(out)
+        csv_out.writerow(['Song Title', 'Bad Word Count', 'Total Word Count'])
+        for row in profanity_data:
+            csv_out.writerow(row)
+
 
 
 # MAIN # 
@@ -236,8 +259,12 @@ artistIdtup = get_artistID(list_of_artist)
 data = get_topTracks(artistIdtup)
 get_table(data, "topTracks.csv")
 avg_popularity = get_avg_popularity(data)
+get_table2(avg_popularity, "averagePop.csv")
 genius_data = get_songURLpath(data)
-get_profanity(genius_data)
+get_table3(genius_data, "geniusData.csv")
+profanity_data = get_profanity(genius_data)
+get_table4(profanity_data, "profanity.csv")
+
 
 
 
